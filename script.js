@@ -1,176 +1,154 @@
-var count = 0;
-var students = []; 
-var global_id;
-function addStudent(){
- 
-    const nameValue = document.getElementById('name').value;
-    const emailValue = document.getElementById('email').value;
-    const ageValue = document.getElementById('age').value;
-    const gradeValue = document.getElementById('grade').value;
-    const degreeValue = document.getElementById('degree').value;
+var taskCount = 0;
+var tasks = [];
+var globalId;
 
-    if(document.querySelector("#submit").innerText == "Edit Student"){
-        console.log("this will edit and not add");
-        console.log(global_id);
-        let index;
+function addTask() {
+    const topicValue = document.getElementById('topic').value.trim();
+    const durationValue = document.getElementById('duration').value.trim();
+    const targetDateValue = document.getElementById('targetDate').value;
+    const notesValue = document.getElementById('notes').value.trim();
 
-        for (let i = 0; i < students.length; i++) {
-            if (students[i]['ID'] == global_id) {
-                index=i;
-                break;
-            }
+    if (document.querySelector('#submit').innerText === 'Edit Topic') {
+        let index = tasks.findIndex((task) => task.ID === globalId);
+        if (index === -1) {
+            return;
         }
 
-        let studentobj = students[index];
-
-        studentobj['name'] = nameValue;
-        studentobj['email'] = emailValue;
-        studentobj['grade'] = gradeValue;
-        studentobj['age'] = ageValue;
-        studentobj['degree'] = degreeValue;
-
-        students[index] = studentobj;
+        tasks[index] = {
+            ...tasks[index],
+            topic: topicValue,
+            duration: durationValue,
+            targetDate: targetDateValue,
+            notes: notesValue
+        };
 
         showTable();
-        document.querySelector("#submit").innerHTML = "Add Student";
-
-            document.getElementById('name').value="";
-            document.getElementById('email').value="";
-            document.getElementById('age').value="";
-            document.getElementById('grade').value="";
-            document.getElementById('degree').value="";
-        
-     return;
-
-    }
-    if(nameValue=='' || emailValue=='' || ageValue=='' || gradeValue =='' || degreeValue==""){
-        alert("All fields are required!")
+        document.querySelector('#submit').innerText = 'Add Topic';
+        resetForm();
         return;
     }
-    count++;
 
-    students.push({
-        ID:count,
-        name:nameValue,
-        email:emailValue,
-        age:ageValue,
-        grade:gradeValue,
-        degree:degreeValue
+    if (topicValue === '' || durationValue === '' || targetDateValue === '') {
+        alert('Topic, duration, and target date are required.');
+        return;
+    }
+
+    taskCount++;
+    tasks.push({
+        ID: taskCount,
+        topic: topicValue,
+        duration: durationValue,
+        targetDate: targetDateValue,
+        notes: notesValue,
+        finished: false
     });
 
-
-    document.getElementById('name').value="";
-    document.getElementById('email').value="";
-    document.getElementById('age').value="";
-    document.getElementById('grade').value="";
-    document.getElementById('degree').value="";
-    console.log(students);
+    resetForm();
     showTable();
 }
 
+function resetForm() {
+    document.getElementById('topic').value = '';
+    document.getElementById('duration').value = '';
+    document.getElementById('targetDate').value = '';
+    document.getElementById('notes').value = '';
+}
 
-function showTable(){
+function showTable() {
     const table = document.getElementById('tbody');
-    while (table.hasChildNodes()) {
-        table.removeChild(table.firstChild);
-    }
+    table.innerHTML = '';
 
-    table.value="";
-    students.forEach((student)=>{
+    tasks.forEach((task) => {
+        const row = document.createElement('tr');
 
-        const row = document.createElement("tr");
-        var keys=Object.keys(student);
+        const id = document.createElement('td');
+        const topic = document.createElement('td');
+        const duration = document.createElement('td');
+        const targetDate = document.createElement('td');
+        const notes = document.createElement('td');
+        const status = document.createElement('td');
+        const actions = document.createElement('td');
 
-        var id = document.createElement('td');
-        const name = document.createElement('td');
-        const email = document.createElement('td');
-        const age = document.createElement('td');
-        const grade = document.createElement('td');
-        const degree = document.createElement('td');
+        id.textContent = task.ID;
+        topic.textContent = task.topic;
+        duration.textContent = task.duration;
+        targetDate.textContent = task.targetDate;
+        notes.textContent = task.notes || '-';
 
-        keys.forEach((key)=>{
-            if(key=='ID'){
-                id.innerHTML = student[key];
-            }
-            else if(key=='name'){
-                name.innerHTML = student[key];
-            }
-            else if(key=='email'){
-                email.innerHTML = student[key];
-            }
-            else if(key=='age'){
-                age.innerHTML = student[key];
-            }
-            else if(key=='grade'){  
-                grade.innerHTML = student[key];
-            }
-            else
-            degree.innerHTML = `<div class='degree'><div>${student[key]}</div> <div class="icons"><a onClick="edit(${student['ID']})" class='fa'>&#xf044;</a> <a onClick="del(${student['ID']})" class='fa'>&#xf1f8;</a> </div></div> `;
+        status.innerHTML = `<span class="status-pill ${task.finished ? 'finished' : 'pending'}">${task.finished ? 'Finished' : 'Pending'}</span>`;
+        actions.innerHTML = `
+            <button class="action-button" onclick="editTask(${task.ID})">Edit</button>
+            <button class="action-button" onclick="toggleFinished(${task.ID})">${task.finished ? 'Undo' : 'Finish'}</button>
+            <button class="action-button danger" onclick="deleteTask(${task.ID})">Delete</button>
+        `;
 
-            row.appendChild(id);
-            row.appendChild(name);
-            row.appendChild(email);
-            row.appendChild(age);
-            row.appendChild(grade);
-            row.appendChild(degree);       
-        })
+        row.appendChild(id);
+        row.appendChild(topic);
+        row.appendChild(duration);
+        row.appendChild(targetDate);
+        row.appendChild(notes);
+        row.appendChild(status);
+        row.appendChild(actions);
 
         table.appendChild(row);
-    })
+    });
 }
 
-function search(){
-  var input, filter, table, tr, td, i, txtValue,txtValue1,txtValue2;
-  input = document.getElementById("search");
-  filter = input.value.toUpperCase();
-  table = document.getElementById("tbody");
-  tr = table.getElementsByTagName("tr");
+function search() {
+    const input = document.getElementById('search');
+    const filter = input.value.toUpperCase();
+    const table = document.getElementById('tbody');
+    const tr = table.getElementsByTagName('tr');
 
+    for (let i = 0; i < tr.length; i++) {
+        const tdTopic = tr[i].getElementsByTagName('td')[1];
+        const tdNotes = tr[i].getElementsByTagName('td')[4];
+        const tdStatus = tr[i].getElementsByTagName('td')[5];
 
-  for (i = 0; i < tr.length; i++) {
-    td = tr[i].getElementsByTagName("td")[1];
-    td1 = tr[i].getElementsByTagName("td")[2];
-    td2 = tr[i].getElementsByTagName("td")[5];
-    if (td || td1 || td2) {
-      txtValue = td.textContent || td.innerText;
-      txtValue1 = td1.textContent || td1.innerText;
-      txtValue2 = td2.textContent || td2.innerText;
-      if (txtValue.toUpperCase().indexOf(filter) > -1 || txtValue1.toUpperCase().indexOf(filter) > -1 || txtValue2.toUpperCase().indexOf(filter) > -1) {
-        tr[i].style.display = "";
-      } else {
-        tr[i].style.display = "none";
-      }
-    }
-  }
-}
+        if (tdTopic || tdNotes || tdStatus) {
+            const txtTopic = tdTopic.textContent || tdTopic.innerText;
+            const txtNotes = tdNotes.textContent || tdNotes.innerText;
+            const txtStatus = tdStatus.textContent || tdStatus.innerText;
 
-
-function edit(id) {
-    let student;
-    console.log(id);
-    for (let i = 0; i < students.length; i++) {
-        if (students[i]['ID'] == id) {
-            student = students[i];
-            break;
+            if (
+                txtTopic.toUpperCase().indexOf(filter) > -1 ||
+                txtNotes.toUpperCase().indexOf(filter) > -1 ||
+                txtStatus.toUpperCase().indexOf(filter) > -1
+            ) {
+                tr[i].style.display = '';
+            } else {
+                tr[i].style.display = 'none';
+            }
         }
     }
-
-    document.querySelector("#name").value = student['name'];
-    document.querySelector("#email").value = student['email'];
-    document.querySelector("#grade").value = student['grade'];
-    document.querySelector("#age").value = student['age'];
-    document.querySelector("#degree").value = student['degree'];
-
-    document.getElementById("submit").innerText = "Edit Student";
-
-    global_id=id;
 }
 
-function del(id){
-    students.forEach((student,index) => {
-        if(student['ID']==id){
-            students.splice(index,1);
-            showTable();
-        }
-    })
+function editTask(id) {
+    const task = tasks.find((item) => item.ID === id);
+    if (!task) {
+        return;
+    }
+
+    document.querySelector('#topic').value = task.topic;
+    document.querySelector('#duration').value = task.duration;
+    document.querySelector('#targetDate').value = task.targetDate;
+    document.querySelector('#notes').value = task.notes;
+
+    document.getElementById('submit').innerText = 'Edit Topic';
+    globalId = id;
+}
+
+function deleteTask(id) {
+    tasks = tasks.filter((task) => task.ID !== id);
+    showTable();
+}
+
+function toggleFinished(id) {
+    const index = tasks.findIndex((task) => task.ID === id);
+    if (index === -1) {
+        return;
+    }
+
+    tasks[index].finished = !tasks[index].finished;
+    showTable();
 }
