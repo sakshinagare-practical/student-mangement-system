@@ -1,6 +1,23 @@
 var taskCount = 0;
 var tasks = [];
 var globalId;
+var currentTheme = localStorage.getItem('theme') || 'dark';
+document.documentElement.dataset.theme = currentTheme;
+
+function updateThemeButton() {
+    const button = document.getElementById('theme-toggle');
+    if (!button) return;
+    button.textContent = currentTheme === 'dark' ? 'Light Mode' : 'Dark Mode';
+}
+
+function toggleTheme() {
+    currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = currentTheme;
+    localStorage.setItem('theme', currentTheme);
+    updateThemeButton();
+}
+
+updateThemeButton();
 
 function addTask() {
     const topicValue = document.getElementById('topic').value.trim();

@@ -1,5 +1,7 @@
-:root {
+ :root {
     color-scheme: dark;
+    --body-bg: radial-gradient(circle at top, rgba(96, 165, 250, 0.12), transparent 28%),
+        linear-gradient(180deg, #0b1120 0%, #0f172a 100%);
     --bg: #0f172a;
     --card: #111827;
     --surface: #1f2937;
@@ -10,6 +12,25 @@
     --accent: #60a5fa;
     --accent-strong: #3b82f6;
     --danger: #f87171;
+    --input-bg: rgba(255, 255, 255, 0.05);
+    --container-bg: rgba(15, 23, 42, 0.92);
+}
+
+[data-theme='light'] {
+    color-scheme: light;
+    --body-bg: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%);
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --surface: #f1f5f9;
+    --surface-strong: #e2e8f0;
+    --border: rgba(148, 163, 184, 0.35);
+    --text: #0f1720;
+    --muted: #64748b;
+    --accent: #2563eb;
+    --accent-strong: #1d4ed8;
+    --danger: #ef4444;
+    --input-bg: rgba(255, 255, 255, 0.9);
+    --container-bg: #ffffff;
 }
 
 * {
@@ -21,8 +42,7 @@ body {
     margin: 0;
     min-height: 100%;
     font-family: 'Inter', sans-serif;
-    background: radial-gradient(circle at top, rgba(96, 165, 250, 0.12), transparent 28%),
-        linear-gradient(180deg, #0b1120 0%, #0f172a 100%);
+    background: var(--body-bg);
     color: var(--text);
 }
 
@@ -43,10 +63,10 @@ a:hover {
     max-width: 1200px;
     margin: 0 auto;
     padding: 32px;
-    background: rgba(15, 23, 42, 0.92);
+    background: var(--container-bg);
     border: 1px solid var(--border);
     border-radius: 24px;
-    box-shadow: 0 28px 80px rgba(15, 23, 42, 0.35);
+    box-shadow: 0 28px 80px rgba(15, 23, 42, 0.18);
 }
 
 header {
@@ -55,6 +75,28 @@ header {
     justify-content: space-between;
     gap: 24px;
     margin-bottom: 32px;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.theme-button {
+    min-height: 42px;
+    padding: 0 18px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text);
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+}
+
+.theme-button:hover {
+    background: rgba(255, 255, 255, 0.12);
+    transform: translateY(-1px);
 }
 
 header h1 {
